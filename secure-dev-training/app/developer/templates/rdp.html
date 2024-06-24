@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RDP</title>
+</head>
+<body>
+    <div id="display" style="display: inline-block; position: fixed; top: 0; left: 0;"></div>
+</body>
+<script type="text/javascript"
+src="/static/js/guac.min.js"></script>
+
+<script type="text/javascript"> /* <![CDATA[ */
+    qString = location.search;
+    params = new URLSearchParams(qString);
+
+    // Get display div from document
+    var display = document.getElementById("display");
+    tunnel = new Guacamole.HTTPTunnel("http://localhost:8080/guacamole-tutorial-1.5.5/tunnel", false, {
+            "X-Display-Height": 500,
+            "X-Display-Width": 500,
+            "X-RDP-Hostname": {{rdp_server}}
+        });
+    // Instantiate client, using an HTTP tunnel for communications.
+    var guac = new Guacamole.Client(
+        tunnel
+    );
+
+    const GUAC_WIDTH = window.innerWidth;
+    const GUAC_HEIGHT = window.innerHeight;
+
+
+
+    // Add client to display div
+    display.appendChild(guac.getDisplay().getElement());
+    
+    // Error handler
+    guac.onerror = function(error) {
+        alert(error);
+    };
+    // Connect
+    guac.connect();
+
+    // Disconnect on close
+    window.onunload = function() {
+        guac.disconnect();
+    }
+
+    var mouse = new Guacamole.Mouse(guac.getDisplay().getElement());
+
+    mouse.onmousedown = 
+    mouse.onmouseup   =
+    mouse.onmousemove = function(mouseState) {
+        guac.sendMouseState(mouseState, true);
+    };
+
+    // Keyboard
+    var keyboard = new Guacamole.Keyboard(document);
+
+    keyboard.onkeydown = function (keysym) {
+        guac.sendKeyEvent(1, keysym);
+    };
+
+    keyboard.onkeyup = function (keysym) {
+        guac.sendKeyEvent(0, keysym);
+    };
+
+
+/* ]]> */ </script>
+
+</html>

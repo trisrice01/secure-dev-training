@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin</title>
+</head>
+<body>
+    <h1>Add RDP servers</h1>
+    <div class="ip_errs">
+        {% for ip_err in get_flashed_messages(category_filter="invalid_ip") %}
+            <p>IP address {{ip_err}} is not valid</p>
+        {% endfor %}
+    </div>
+    <form action="/admin/add-rdp-servers" method="post">
+        {{ add_rdp_form.hidden_tag() }}
+        <p>
+            {{ add_rdp_form.rdp_servers.label }}<br>
+            {{ add_rdp_form.rdp_servers(size=32) }}
+        </p>
+        <p>{{ add_rdp_form.submit() }}</p>
+    </form>
+</body>
+</html>

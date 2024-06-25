@@ -20,7 +20,7 @@ src="/static/js/guac.min.js"></script>
     tunnel = new Guacamole.HTTPTunnel("/tunnel", false, {
             "X-Display-Height": 500,
             "X-Display-Width": 500,
-            "X-RDP-Hostname": {{rdp_server}}
+            "X-RDP-Hostname": "{{rdp_server}}"
         });
     // Instantiate client, using an HTTP tunnel for communications.
     var guac = new Guacamole.Client(

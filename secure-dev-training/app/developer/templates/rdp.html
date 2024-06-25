@@ -17,7 +17,7 @@ src="/static/js/guac.min.js"></script>
 
     // Get display div from document
     var display = document.getElementById("display");
-    tunnel = new Guacamole.HTTPTunnel("http://localhost:8080/guacamole-tutorial-1.5.5/tunnel", false, {
+    tunnel = new Guacamole.HTTPTunnel("/tunnel", false, {
             "X-Display-Height": 500,
             "X-Display-Width": 500,
             "X-RDP-Hostname": {{rdp_server}}

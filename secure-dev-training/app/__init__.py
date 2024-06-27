@@ -16,11 +16,16 @@ migrate = Migrate(app, db, render_as_batch=True)
 login = LoginManager(app)
 
 from app.models.user import User
+from app.models.rdp_server import RDPServer
 
 from .admin.routes import admin_bp
 from .developer.routes import developer_bp
 app.register_blueprint(admin_bp, url_prefix="/admin")
 app.register_blueprint(developer_bp, url_prefix="/developer")
+
+from .utils import load_predefined_rdps
+
+load_predefined_rdps(db)
 
 @login.user_loader
 def load_user(id):

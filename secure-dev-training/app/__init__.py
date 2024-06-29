@@ -25,7 +25,8 @@ app.register_blueprint(developer_bp, url_prefix="/developer")
 
 from .utils import load_predefined_rdps
 
-load_predefined_rdps(db)
+with app.app_context():
+    load_predefined_rdps(db)
 
 @login.user_loader
 def load_user(id):

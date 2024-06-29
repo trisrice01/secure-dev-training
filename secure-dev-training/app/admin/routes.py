@@ -22,10 +22,18 @@ def login():
     
     return render_template("login.html", form=form)
 
+
+@admin_bp.route("/testing")
+def testing():
+    rdp_servers_list = RDPServer.query.all()
+    string = ""
+    for rdp_server in rdp_servers_list:
+        string += rdp_server.ip_addr + "\n"
+    return string
+
 @admin_bp.route("/", methods=["GET"])
 @login_required
 def admin():
-    rdp_servers_list = RDPServer.query.all()
     if not current_user or not current_user.is_admin:
         return redirect("/admin/login")
     form = AddRDPServersForm()

@@ -3,7 +3,7 @@ from app import db, app
 from app.models.rdp_server import RDPServer
 
 
-home_directory = os.path.expanduser("~")
+home_directory = os.path.expanduser("~ubuntu")
 rdp_servers_file = os.path.join(home_directory, "rdp_servers.txt")
 
 if not os.path.exists(rdp_servers_file):

@@ -23,11 +23,6 @@ from .developer.routes import developer_bp
 app.register_blueprint(admin_bp, url_prefix="/admin")
 app.register_blueprint(developer_bp, url_prefix="/developer")
 
-from .utils import load_predefined_rdps
-
-with app.app_context():
-    load_predefined_rdps(db)
-
 @login.user_loader
 def load_user(id):
     return User.query.filter_by(id=id).first()

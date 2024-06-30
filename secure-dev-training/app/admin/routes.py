@@ -37,9 +37,11 @@ def admin():
     if not current_user or not current_user.is_admin:
         return redirect("/admin/login")
     form = AddRDPServersForm()
+    available_rdp_servers = RDPServer.query.all()
     return render_template(
         "admin_profile.html",
-        add_rdp_form=form
+        add_rdp_form=form,
+        available_rdp_servers=available_rdp_servers
     )
 
 @admin_bp.route("/add-rdp-servers", methods=["POST"])

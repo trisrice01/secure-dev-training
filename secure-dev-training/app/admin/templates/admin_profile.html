@@ -20,5 +20,27 @@
         </p>
         <p>{{ add_rdp_form.submit() }}</p>
     </form>
+    <table>
+        <thead>
+            <th>
+                <td>Server IP address</td>
+                <td>Username</td>
+            </th>
+        </thead>
+        <tbody>
+            {% for server in available_rdp_servers %}
+                <tr>
+                    <td>{{ server.ip_addr }}</td>
+                    <td>
+                        {% if server.is_taken %}
+                            {{server.user.username}}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </body>
 </html>

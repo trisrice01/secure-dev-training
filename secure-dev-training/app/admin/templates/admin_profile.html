@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin</title>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+
+    </style>
 </head>
 <body>
     <h1>Add RDP servers</h1>
@@ -22,10 +29,11 @@
     </form>
     <table>
         <thead>
-            <th>
-                <td>Server IP address</td>
-                <td>Username</td>
-            </th>
+            <tr>
+                <th>Server IP address</th>
+                <th>Username</th>
+                <th>Actions</th>
+            </tr>
         </thead>
         <tbody>
             {% for server in available_rdp_servers %}
@@ -38,9 +46,43 @@
                             N/A
                         {% endif %}
                     </td>
+                    <td>
+                        {% if server.is_taken %}
+                            <button data-role="delete-user-btn" data-id="{{server.user.id}}">Delete user</button>
+                        {% endif %}
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
+    <table>
+        <thead>
+            <tr>
+                <th>Challenge Name</th>
+                <th>Challenge IP address</th>
+                <th>Challenge Flag</th>
+                <th>Challenge Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for challenge in available_challenges %}
+                <tr>
+                    <td>{{challenge.name}}</td>
+                    <td>{{challenge.ip_addr}}</td>
+                    <td>{{challenge.flag}}</td>
+                    <td>{{challenge.description}}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div>
+        <h1>Login Code: <span id="current-login-code">{{login_code}}</span></h1>
+        <form id="submit-new-login-code">
+            <label for="change-login-code">Enter new login code.</label>
+            <input id="change-login-code" type="text" name="login_code">
+            <input type="submit">
+        </form>
+    </div>
 </body>
+<script src="/static/js/admin.js"></script>
 </html>

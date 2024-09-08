@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer login</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="login-container">
+            <div class="form-logo">
+                <img src="/static/img/lrqa-logo.png" class="form-logo__img" />
+        
+            </div>
+            <form class="form-main" action="" method="post">
+                <div class="form-main__title">
+                    <h1>
+                        Let's start HACKING
+                        <div class="form-title__underline--yellow"></div>
+                    </h1>
+                </div>
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    <div class="form-group__label">{{ form.username.label }} *</div>
+                    {{ form.username(class="form-group__input") }}
+                </div>
+                <div class="form-group">
+                    <div class="form-group__label">{{ form.password.label }} *</div>
+                    {{ form.password(class="form-group__input") }}
+                </div>
+                <div class="form-group--error">
+                    {% for message in get_flashed_messages("error") %}
+                        <p class="form-group__error">{{message[1]}}</p>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    {{ form.submit(class="form-group__submit") }}
+                    <a class="login-container__clickhere" href="/developer/login">
+                        Need to sign up? Click here.</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

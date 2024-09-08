@@ -4,22 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Developer Register</title>
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-    {% for message in get_flashed_messages("error") %}
-        <p>{{message[1]}}</p>
-    {% endfor %}
-    <form action="" method="post">
-        {{ form.hidden_tag() }}
-        <p>
-            {{ form.username.label }}<br>
-            {{ form.username(size=32) }}
-        </p>
-        <p>
-            {{ form.password.label }}<br>
-            {{ form.password(size=32) }}
-        </p>
-        <p>{{ form.submit() }}</p>
-    </form>
+    <div class="container">
+        <div class="login-container">
+            <div class="form-logo">
+                <img src="/static/img/lrqa-logo.png" class="form-logo__img" />
+        
+            </div>
+            <form class="form-main" action="" method="post">
+                <div class="form-main__title">
+                    <h1>
+                        Regsiter for a developer account
+                        <svg width="201" height="8" viewBox="0 0 201 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M174.623 5.4723C175.74 5.37473 176.907 5.31102 178.106 5.26024C180.62 5.14575 183.205 5.11887 185.464 5.00538C178.594 4.61214 171.617 4.72663 166.053 4.71567C159.46 4.70472 151.734 4.72563 141.728 4.67784C122.633 4.59024 96.6315 4.53846 70.8311 4.9795C63.204 5.11489 55.5717 5.23237 47.9734 5.44641C45.1195 5.52904 42.2603 5.61267 39.4064 5.6953C34.4009 5.84563 29.398 5.99695 24.3899 6.13135C20.1494 6.24485 14.9272 6.82127 10.3577 6.77448C5.14858 6.72072 1.51914 5.74707 0.388524 3.87543C-0.0318645 3.19546 -0.30342 2.19991 0.618302 1.62049C1.54525 1.03909 2.05964 0.873827 2.62102 0.717524C3.9788 0.350164 5.65513 0.0644401 6.45413 0.053489C17.4678 -0.0659776 29.7609 0.0375614 39.6205 0.141099C47.3598 0.224726 55.1148 0.303375 65.3086 0.307357C77.5234 0.380032 114.105 0.629915 126.315 0.634893C134.409 0.638875 142.485 0.894735 150.538 1.22625C157.238 1.50103 164.011 1.79173 170.897 2.11827C177.558 2.42889 181.513 2.44979 188.248 2.80719C189.297 2.85896 190.532 2.91073 191.869 2.97345C192.981 3.01427 194.425 3.08695 195.512 3.11383C196.603 3.13374 198.112 3.44535 200.136 4.30551C200.243 5.58679 199.319 6.2548 197.825 6.27671C196.465 6.52958 195.376 6.65502 194.668 6.70181C191.95 6.92979 189.404 7.00147 187.488 6.88798C186.198 6.81132 182.331 7.04428 178.947 7.21552C176.448 7.34992 175.03 7.37082 171.155 7.18963C169.116 6.98753 169.064 6.3902 171.44 5.88844C172.503 5.70625 173.717 5.55095 174.623 5.4723Z" fill="black"/>
+                        </svg>
+                    </h1>
+                </div>
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    <div class="form-group__label">{{ form.username.label }} *</div>
+                    {{ form.username(class="form-group__input") }}
+                </div>
+                <div class="form-group">
+                    <div class="form-group__label">{{ form.password.label }} *</div>
+                    {{ form.password(class="form-group__input") }}
+                </div>
+                <div class="form-group">
+                    <div class="form-group__label">{{ form.password2.label }} *</div>
+                    {{ form.password2(class="form-group__input") }}
+                </div>
+                <div class="form-group">
+                    <div class="form-group__label">{{ form.login_code.label }} *</div>
+                    {{ form.login_code(class="form-group__input") }}
+                </div>
+                <div class="form-group--error">
+                    {% for message in get_flashed_messages("error") %}
+                        <p class="form-group__error">{{message[1]}}</p>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    {{ form.submit(class="form-group__submit") }}
+                    <a class="login-container__clickhere" href="/developer/login">
+                        Already have an account? Login here</a>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 </html>

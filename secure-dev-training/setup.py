@@ -1,11 +1,13 @@
 import os
 from app import db, app
 from app.models.rdp_server import RDPServer
+from app.models.challenge import Challenge
+import csv
 
 
-home_directory = os.path.expanduser("~ubuntu")
+home_directory = os.path.expanduser("~")
 rdp_servers_file = os.path.join(home_directory, "rdp_servers.txt")
-
+challenge_servers_file = os.path.join(home_directory, "challenge_servers.txt")
 if not os.path.exists(rdp_servers_file):
     exit()
 
@@ -24,5 +26,18 @@ with app.app_context():
         r.is_taken = False
         db.session.add(r)
 
+    with open(challenge_servers_file) as f:
+        reader = csv.DictReader(f, delimiter="|")
+        Challenge.query.delete()
+        for row in reader:
+            c = Challenge()
+            c.name = row["name"]
+            c.ip_addr = row["ip"]
+            c.flag = row["flag"]
+            c.description = row["description"]
+            db.session.add(c)
+
     db.session.commit()
+
+
 

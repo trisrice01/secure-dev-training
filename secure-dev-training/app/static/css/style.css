@@ -1,0 +1,260 @@
+:root {
+    --dark-blue: #0f1232;
+    --green: #9fef00;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Arial", sans-serif;
+}
+
+
+body {
+    min-height: 100vh;
+    background-color: var(--dark-blue);
+}
+
+.container {
+    width: 100%;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 30px;
+}
+
+.login-container {
+    background: white;
+    padding: 35px 20px 20px;
+    border-radius: 5px;
+    width: min(95%, 350px);
+}
+
+.form-logo {
+    margin-bottom: 20px;
+}
+
+.form-logo__img {
+    display: block;
+    width: 100px;
+    margin: 0 auto;
+}
+
+.form-group {
+    margin-bottom: 10px;
+}
+
+.form-group__label {
+    font-weight: 500;
+    color: var(--dark-blue);
+    font-size: 0.7em;
+    font-weight: 600;
+    opacity: 0.8;
+    margin-bottom: 5px; 
+}
+
+.form-group__input {
+    padding: 6px 12px;
+    line-height: 1.5;
+    background-color: white;
+    appearance: none;
+    border-radius: 4px;
+    border: 1px solid rgb(206, 212, 218);
+    width: 100%;
+}
+
+.form-main__title {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.form-main__title > h1 {
+    font-size: 1.4em;
+    max-width: 200px;
+    text-align: center;
+    margin: 0 auto;
+    display: block;
+    position: relative;
+    z-index:1;
+}
+
+.form-main__title > h1 > svg {
+    position: absolute;
+    left: 0px;
+    bottom: -3px;
+    z-index: 0;
+    opacity: 0.4;
+}
+
+.form-main__title > h1 > svg path {
+    fill: red;
+}
+.form-group__submit {
+    color: white;
+    font-size: 1em;
+    background: var(--dark-blue);
+    border-radius: 7px;
+    appearance: none;
+    border: none;
+    display: block;
+    margin: 20px auto 0;
+    padding: 7px 25px;
+}
+
+.login-container__clickhere {
+    font-size: 0.7em;
+    text-align: center;
+    text-decoration: none;
+    width: 100%;
+    text-align: center;
+    display: inline-block;
+    color: rgb(8, 117, 225);
+}
+
+.form-group__error {
+    color: red;
+    font-size: 0.7em;
+}
+
+.form-title__underline--yellow {
+    width: 116px;
+    height: 9px;
+    background: yellow;
+    position: absolute;
+    left: 45px;
+    bottom: 1px;
+    opacity: 30%;
+}
+
+.developer-home__container {
+    background: var(--dark-blue);
+    padding-bottom: 50px;
+}
+
+.developer-home__heading {
+    color: white;
+}
+
+.developer-home__flag-progress {
+    width: 95%;
+    margin: 0 auto;
+    border: 1px solid white;
+    border-radius: 5px;
+    position: relative;
+    padding: 40px 0 20px;
+}
+
+.developer-home__current-flags {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.developer-home__flag-title {
+    color: white;
+    font-size: 22px;
+    font-weight: 500;
+}
+
+.developer-home__flag-title span.ip-addr:hover {
+    cursor: pointer;
+    color: #9fef00;
+}
+
+.developer-home__flag-description {
+    width: 70%;
+    color: #f5f5f5;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.developer-home__flag-submission-portal {
+    display: flex;
+    width: 30%;
+    gap: 10px;
+}
+
+.developer-home__flag-submission {
+    padding: 10px;
+    background: var(--dark-blue);
+    appearance: none;
+    border-radius: 5px;
+    border: 1px solid var(--green);
+    flex-grow: 1;
+}
+
+.developer-home__flag-submission:disabled {
+
+}
+
+
+.developer-home__flag-submission,
+.developer-home__flag-submission::placeholder {
+    color: var(--green);
+}
+
+.devleoper-home__flag-progress {
+    color: white;
+    margin-top: 50px;
+    font-style: italic;
+    text-align: center;
+    font-size: 11px;
+}
+
+.caret {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.caret:hover {
+    cursor: pointer;
+}
+
+.caret--left {
+    left: 10px;
+    transform: rotate(90deg);
+}
+
+.caret--right {
+    right: 10px;
+    transform: rotate(270deg);
+}
+
+.developer-home__flag-progress--animated {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.developer-home__flag-submit-btn {
+    display: grid;
+    place-items: center;
+    padding: 0 10px;
+    appearance: none;
+    background: var(--dark-blue);
+    border-radius: 10px;
+    border: 1px solid var(--green);
+}
+
+.developer-home__flag-submit-btn:hover:not(:disabled) {
+    cursor: pointer;
+}
+
+.developer-home__flag-submit-btn img {
+    width: 20px;
+    height: 17px;
+}
+
+.hidden {
+    display: none;
+}
+
+.completed-notification {
+    color: var(--green);
+    font-style: italic;
+}

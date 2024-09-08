@@ -1,10 +1,13 @@
-from flask import Blueprint, request, render_template, redirect, flash, get_flashed_messages
+from flask import Blueprint, jsonify, request, render_template, redirect, flash, get_flashed_messages
 from flask_login import current_user, login_user, login_required
-from .forms import LoginForm, AddRDPServersForm
+from .forms import LoginForm, AddRDPServersForm, DeleteUserForm
 from app.models.user import User
 from app.models.rdp_server import RDPServer
+from app.models.challenge import Challenge
 from .utils import is_valid_ip
 from app import db
+from .forms import ChangeLoginCodeForm
+from app import login_code_service
 
 
 admin_bp = Blueprint("admin", __name__, template_folder="./templates")
@@ -20,7 +23,7 @@ def login():
         login_user(u)
         return redirect("/admin")
     
-    return render_template("login.html", form=form)
+    return render_template("admin_login.html", form=form)
 
 
 @admin_bp.route("/testing")
@@ -38,11 +41,82 @@ def admin():
         return redirect("/admin/login")
     form = AddRDPServersForm()
     available_rdp_servers = RDPServer.query.all()
+    available_challenges = Challenge.query.all()
+    login_code = login_code_service.get_login_code()
     return render_template(
         "admin_profile.html",
         add_rdp_form=form,
-        available_rdp_servers=available_rdp_servers
+        available_rdp_servers=available_rdp_servers,
+        available_challenges=available_challenges,
+        login_code=login_code 
     )
+
+@admin_bp.route("/change-login-code", methods=["POST"])
+@login_required
+def change_login_code():
+    if not current_user or not current_user.is_admin:
+        return redirect("/admin/login")
+    
+    request_json = request.get_json(force=True, silent=True)
+
+    if not request_json:
+        return jsonify({
+            "error": True,
+            "message": "Invalid JSON"
+        })
+
+    form = ChangeLoginCodeForm.from_json(request_json)
+
+    if not form.validate():
+        return jsonify({
+            "error": True,
+            "message": "Invalid form"
+        })
+
+    login_code_service.set_login_code(form.login_code.data)
+
+    return jsonify({
+        "success": True,
+        "message": "Code updated!"
+    })
+    
+@admin_bp.route("/delete-user", methods=["POST"])
+@login_required
+def delete_user():
+    if not current_user or not current_user.is_admin:
+        return redirect("/admin/login")
+
+    request_json = request.get_json(force=True, silent=True)
+
+    if not request_json:
+        return jsonify({
+            "error": True,
+            "message": "Invalid JSON"
+        })
+    
+    form = DeleteUserForm.from_json(request_json)
+    if not form.validate():
+        return jsonify({
+            "error": True,
+            "message": "Invalid form"
+        })
+    
+    user_id = None
+    try:
+        user_id = int(form.user_id.data)
+    except ValueError:
+        return jsonify({
+            "error": True,
+            "message": "Invalid user id"
+        })
+    user = User.query.get(user_id)
+    rdp_server = user.rdp_server
+    rdp_server.user_id = None
+    db.session.delete(user)
+    db.session.add(rdp_server)
+    db.session.commit()
+    return "user_id.data"
+
 
 @admin_bp.route("/add-rdp-servers", methods=["POST"])
 @login_required

@@ -3,3 +3,4 @@ flask-migrate
 flask-login
 bcrypt
 flask-wtf
+wtforms-json

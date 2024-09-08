@@ -3,6 +3,7 @@ from flask import Flask, get_flashed_messages
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
+import wtforms_json
 
 
 app = Flask(__name__, static_folder="./static")
@@ -15,8 +16,17 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db, render_as_batch=True)
 login = LoginManager(app)
 
+from .services import LoginCodeService
+
+login_code_service = LoginCodeService.init_app(app, db)
+
+# Services
+
+wtforms_json.init()
+
 from app.models.user import User
 from app.models.rdp_server import RDPServer
+from app.models.challenge import Challenge
 
 from .admin.routes import admin_bp
 from .developer.routes import developer_bp

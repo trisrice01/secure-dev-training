@@ -5,7 +5,7 @@ from app.models.challenge import Challenge
 import csv
 
 
-home_directory = os.path.expanduser("~")
+home_directory = "/home/ubuntu/"
 rdp_servers_file = os.path.join(home_directory, "rdp_servers.txt")
 challenge_servers_file = os.path.join(home_directory, "challenge_servers.txt")
 if not os.path.exists(rdp_servers_file):

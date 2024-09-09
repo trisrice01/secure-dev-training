@@ -481,9 +481,12 @@ async function submitFlagListener(e) {
     if (response.error) {
         console.log(response.message); 
     } else {
+        alert("Challenge completed");
+        debugger;
+        e.target.parentElement.querySelector(".completed-notification-container").classList.remove("hidden");
+        e.target.classList.add("hidden");
         window.flagProgressBar.completeFlag()
     }
-    console.log(response);
 }
 
 async function setupPage() {

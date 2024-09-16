@@ -23,6 +23,8 @@ class User(UserMixin, db.Model):
 
     @property
     def rdp_server_connection(self):
+        if self.is_admin:
+            return None
         return self.rdp_server.ip_addr
         
     def verify_password(self, password_attempt):

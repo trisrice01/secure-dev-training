@@ -482,7 +482,6 @@ async function submitFlagListener(e) {
         console.log(response.message); 
     } else {
         alert("Challenge completed");
-        debugger;
         e.target.parentElement.querySelector(".completed-notification-container").classList.remove("hidden");
         e.target.classList.add("hidden");
         window.flagProgressBar.completeFlag()

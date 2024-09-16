@@ -24,56 +24,13 @@
         </div>
     </template>
     <div class="developer-home__container">
-        <div>
+        <div class="developer-home__sub-container">
             <h1 class="developer-home__heading">Developer home</h1>
-            <div id="display" style="display: inline-block; width: 500px; height: 500px;"></div>
-
+            <p class="developer-home__subheading">You can find a <i>Kali Linux</i> instance below, a tool used by white hat hackers to identify and remediate vulnerabilities. It contains many tools, such as sqlmap, gobuster, and burpsuite.</p>
+            <div id="display" style="background: green; display: inline-block; width: 500px; height: 500px;"></div>
             <div class="developer-home__flag-progress">
                 <div class="pagination" id="paginated-flags" style="display: none;">
-                    <!-- <div class="developer-home__current-flags">
-                        <h2 class="developer-home__flag-title">Flag 1 - <span>10.10.10.10</span></h2>
-                        <p class="developer-home__flag-description">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of.</p>
-                        <form class="developer-home__flag-submission-portal">
-                            <input name="flag-value" class="developer-home__flag-submission" placeholder="Submit your flag..." type="text">
-                            <button type="submit" class="developer-home__flag-submit-btn"><img src="/static/img/flag-icon.svg" /></button>
-                        </form>
-                    </div>
-                    <div class="developer-home__current-flags">
-                        <h2 class="developer-home__flag-title">Flag 2 - <span>10.10.10.10</span></h2>
-                        <p class="developer-home__flag-description">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of.</p>
-                        <div class="developer-home__flag-submission-portal">
-                            <input class="developer-home__flag-submission" placeholder="Submit your flag..." type="text">
-                            <button></button>
-                        </div>
-                    </div>
-                    <div class="developer-home__current-flags">
-                        <h2 class="developer-home__flag-title">Flag 3 - <span>10.10.10.10</span></h2>
-                        <p class="developer-home__flag-description">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of.</p>
-                        <div class="developer-home__flag-submission-portal">
-                            <input class="developer-home__flag-submission" placeholder="Submit your flag..." type="text">
-                        </div>
-                    </div>
-                    <div class="developer-home__current-flags">
-                        <h2 class="developer-home__flag-title">Flag 4 - <span>10.10.10.10</span></h2>
-                        <p class="developer-home__flag-description">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of.</p>
-                        <div class="developer-home__flag-submission-portal">
-                            <input class="developer-home__flag-submission" placeholder="Submit your flag..." type="text">
-                        </div>
-                    </div>
-                    <div class="developer-home__current-flags">
-                        <h2 class="developer-home__flag-title">Flag 5 - <span>10.10.10.10</span></h2>
-                        <p class="developer-home__flag-description">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of.</p>
-                        <div class="developer-home__flag-submission-portal">
-                            <input class="developer-home__flag-submission" placeholder="Submit your flag..." type="text">
-                        </div>
-                    </div>
-                    <div class="developer-home__current-flags">
-                        <h2 class="developer-home__flag-title">Flag 6 - <span>10.10.10.10</span></h2>
-                        <p class="developer-home__flag-description">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of.</p>
-                        <div class="developer-home__flag-submission-portal">
-                            <input class="developer-home__flag-submission" placeholder="Submit your flag..." type="text">
-                        </div>
-                    </div> -->
+
                 </div>
                 <p data-role="flag-progress" class="devleoper-home__flag-progress"></p>
                 <img id="caret-left" class="caret caret--left" src="/static/img/caret.svg" alt="">
@@ -81,38 +38,6 @@
             </div>
             <div id="progress-bar-animated" class="developer-home__flag-progress developer-home__flag-progress--animated">
             </div>
-            <!-- <h1>Your dashboard</h1>
-            <table>
-                <thead>
-                    <th>
-                        <td>Challenge Name</td>
-                        <td>Challenge IP</td>
-                        <td></td>
-                    </th>
-                </thead>
-                <tbody>
-                    {% for challenge in challenges %}
-                        <tr data-chal-id="{{challenge.id}}">
-                            <td>{{ challenge.name }}</td>
-                            <td>{{ challenge.ip_addr }}</td>
-                            {% if current_user in challenge.completed_users %}
-                                <td>Has completed!</td>
-                            {% else %}
-                                <td>
-                                    <form action="" name="submitFlagForm">
-                                        <input name="flagValue" id="test" type="text">
-                                        <button type="submit" name="">Submit flag</button>
-                                    </form>
-                                </td>
-                            {% endif %}
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% for challenge in challenges %}
-            {% endfor %}
-        </div> -->
-        <!-- <div id="display" style="display: inline-block; width: 500px; height: 500px;"></div> -->
     </div>
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.6.1/toastify.min.js" integrity="sha512-79j1YQOJuI8mLseq9icSQKT6bLlLtWknKwj1OpJZMdPt2pFBry3vQTt+NZuJw7NSd1pHhZlu0s12Ngqfa371EA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

@@ -1,6 +1,7 @@
 :root {
     --dark-blue: #0f1232;
     --green: #9fef00;
+    --text-color: white;
 }
 
 * {
@@ -128,13 +129,30 @@ body {
 }
 
 .developer-home__container {
-    background: var(--dark-blue);
     padding-bottom: 50px;
 }
 
-.developer-home__heading {
-    color: white;
+.developer-home__sub-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 30px;
 }
+
+.developer-home__heading {
+
+}
+
+.developer-home__heading,
+.developer-home__subheading {
+    color: var(--text-color);
+}
+
+.developer-home__subheading {
+    width: min(600px, 80%);
+    text-align: center;
+}
+
 
 .developer-home__flag-progress {
     width: 95%;
@@ -153,7 +171,7 @@ body {
 }
 
 .developer-home__flag-title {
-    color: white;
+    color: var(--text-color);
     font-size: 22px;
     font-weight: 500;
 }
@@ -196,7 +214,7 @@ body {
 }
 
 .devleoper-home__flag-progress {
-    color: white;
+    color: var(--text-color);
     margin-top: 50px;
     font-style: italic;
     text-align: center;

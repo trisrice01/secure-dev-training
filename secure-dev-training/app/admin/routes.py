@@ -112,10 +112,14 @@ def delete_user():
     user = User.query.get(user_id)
     rdp_server = user.rdp_server
     rdp_server.user_id = None
+    rdp_server.is_taken = False
     db.session.delete(user)
     db.session.add(rdp_server)
     db.session.commit()
-    return "user_id.data"
+    return jsonify({
+        "success": True,
+        "message": "User deleted successfully!"
+    })
 
 
 @admin_bp.route("/add-rdp-servers", methods=["POST"])

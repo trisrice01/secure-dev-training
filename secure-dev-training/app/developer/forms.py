@@ -5,14 +5,14 @@ from wtforms.validators import DataRequired
 
 class RegisterForm(FlaskForm):
     username = StringField("Username", validators=[DataRequired()])
-    password = StringField("Password", validators=[DataRequired()])
-    password2 = StringField("Re-Enter password", validators=[DataRequired()])
+    password = PasswordField("Password", validators=[DataRequired()])
+    password2 = PasswordField("Re-Enter password", validators=[DataRequired()])
     login_code = StringField("Login Code", validators=[DataRequired()])
     submit = SubmitField("Sign in")
 
 class LoginForm(FlaskForm):
     username = StringField("Username", validators=[DataRequired()])
-    password = StringField("Password", validators=[DataRequired()])
+    password = PasswordField("Password", validators=[DataRequired()])
     submit = SubmitField("Sign in")
 
 class ChallengeCompletionForm(FlaskForm):

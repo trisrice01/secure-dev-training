@@ -1,0 +1,4 @@
+AuthUserFile /var/www/html/admin/.htpasswd
+AuthName "Protected admin page"
+AuthType Basic
+Require valid-user

@@ -4,3 +4,4 @@ flask-login
 bcrypt
 flask-wtf
 wtforms-json
+python-dotenv

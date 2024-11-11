@@ -143,3 +143,76 @@ def complete_challenge():
         "success": True,
         "message": "Challenge completed successfully!"
     })
+
+@developer_bp.route("/code_editor")
+@login_required
+def code_edition():
+    rdp_server = current_user.rdp_server_connection
+    challenges = Challenge.query.all()
+    return render_template("test.html", rdp_server=rdp_server, challenges=challenges, current_user=current_user)
+
+@developer_bp.route("/code_editor/challenges", methods=["GET"])
+@login_required
+def list_codechallenges():
+    all_challenges: list[Challenge] = Challenge.query.all()
+    challenges_response = {
+        "total": len(all_challenges),
+        "challenges": [{
+            "id": challenge.id,
+            "ip": challenge.ip_addr,
+            "name": challenge.name,
+            "description": challenge.description,
+            "is_complete": (current_user in challenge.completed_users)
+        } for challenge in all_challenges]
+    }
+    return jsonify(challenges_response)
+
+@developer_bp.route("/code_editor/challenge/complete", methods=["POST"])
+@login_required
+def complete_codechallenge():
+    request_json = request.get_json(force=True, silent=True)
+
+    if not request_json:
+        return jsonify({
+            "error": True,
+            "message": "Invalid JSON"
+        })
+    
+    form: ChallengeCompletionForm = ChallengeCompletionForm.from_json(request_json)
+
+    if not form.validate():
+        return jsonify({
+            "error": True,
+            "message": "Invalid form"
+        })
+
+    challenge: Challenge = Challenge.query.get(form.challenge_id.data)
+    if not challenge:
+        return jsonify({
+            "error": True,
+            "message": "That challenge could not be found!"
+        })
+    
+    if current_user in challenge.completed_users:
+        return jsonify({
+            "error": True,
+            "message": "You have already completed this challenge!"
+        })
+    
+    if challenge.flag != form.challenge_flag.data:
+        return jsonify({
+            "error": True,
+            "message": "Invalid challenge flag"
+        })
+    
+    challenge_completion = UserChallengeCompletions()
+    challenge_completion.user_id = current_user.id
+    challenge_completion.challenge_id = challenge.id
+
+    db.session.add(challenge_completion)
+    db.session.commit()
+
+    return jsonify({
+        "success": True,
+        "message": "Challenge completed successfully!"
+    })

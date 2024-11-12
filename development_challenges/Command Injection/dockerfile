@@ -1,0 +1,6 @@
+FROM php:apache
+COPY upload.php upload.php
+COPY problem.php problem.php
+RUN apt-get update && apt-get install -y iputils-ping
+EXPOSE 80
+EXPOSE 443

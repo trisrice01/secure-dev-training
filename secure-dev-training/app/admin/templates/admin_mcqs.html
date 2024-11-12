@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiple Choice Questions</title>
+    <link rel="stylesheet" href="/static/css/admin.css">
+</head>
+<body>
+
+    <form action="" method="POST">
+        <div>
+            {{ form.question_text.label}}
+            {{form.question_text()}}
+        </div>
+        {% for choice_form in form.choices %}
+            <div class="multiple-choice-form">
+                <div>
+                    {{ choice_form.choice_text.label}}
+                    {{ choice_form.choice_text() }}
+                </div>
+                <div>
+                    {{ choice_form.is_correct.label }}
+                    {{ choice_form.is_correct(required=False) }}
+                </div>
+            </div>
+        {% endfor %}
+        {{form.submit()}}
+    </form>
+</body>
+</html>

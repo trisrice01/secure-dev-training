@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, render_template, redirect, flash, get_flashed_messages
 from flask_login import current_user, login_user, login_required
-from .forms import LoginForm, AddRDPServersForm, DeleteUserForm
+from .forms import LoginForm, AddRDPServersForm, DeleteUserForm, MCQForm
 from app.models.user import User
 from app.models.rdp_server import RDPServer
 from app.models.challenge import Challenge
@@ -142,4 +142,18 @@ def add_rdp_servers():
                 db.session.commit()
 
     return redirect("/admin/")
+
+@admin_bp.route("/mcq", methods=["GET", "POST"])
+@login_required
+def mcq_management():
+    if not current_user or not current_user.is_admin:
+        return redirect("/admin/login")
     
+    form = MCQForm()
+
+    print(form.choices.data)
+    print(form.question_text.data)
+    if form.validate_on_submit():
+        print(form)
+
+    return render_template("admin_mcqs.html", form=form)

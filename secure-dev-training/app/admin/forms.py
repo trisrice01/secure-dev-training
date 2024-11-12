@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, SubmitField
+from wtforms import StringField, IntegerField, SubmitField, BooleanField, FieldList, FormField
 from wtforms.widgets import TextArea
 from wtforms.validators import DataRequired
 
@@ -23,3 +23,16 @@ class DeleteUserForm(FlaskForm):
         csrf = False
 
     user_id = IntegerField("User ID", validators=[DataRequired()])
+
+
+class MCQChoice(FlaskForm):
+    class Meta:
+        csrf = False
+        
+    choice_text = StringField("Choice text", validators=[DataRequired()])
+    is_correct = BooleanField("Is Correct")
+
+class MCQForm(FlaskForm):
+    question_text = StringField("Question text", validators=[DataRequired()])
+    choices = FieldList(FormField(MCQChoice), min_entries=4)
+    submit = SubmitField("Submit")

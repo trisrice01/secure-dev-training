@@ -18,18 +18,18 @@ services:
       - 443:443 # for future ssl traffic
     depends_on:
       - db
-      - phpmyadmin
+      # - phpmyadmin
     environment:
       - MYSQL_DATABASE=php_docker
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     command: /bin/sh -c "chown www-data:www-data /var/www/html/problem.php && chmod +w /var/www/html/problem.php && apache2-foreground"
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    ports:
-      - 8001:80
-    environment:
-      - PMA_HOST=db
-      - PMA_PORT=3306
-    depends_on:
-      - db
+  # phpmyadmin:
+  #   image: phpmyadmin/phpmyadmin
+  #   ports:
+  #     - 8001:80
+  #   environment:
+  #     - PMA_HOST=db
+  #     - PMA_PORT=3306
+  #   depends_on:
+  #     - db

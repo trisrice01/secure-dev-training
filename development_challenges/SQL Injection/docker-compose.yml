@@ -6,16 +6,16 @@ services:
       - MYSQL_DATABASE=php_docker
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      - MYSQL_ALLOW_EMPTY_PASSWORD=1 # equivalent to True
+      - MYSQL_ALLOW_EMPTY_PASSWORD=1
     volumes:
-      - "./db:/docker-entrypoint-initdb.d" # this is how we persist a sql db even when container stops
+      - "./db:/docker-entrypoint-initdb.d"
   www:
     build:
       context: .
       dockerfile: dockerfile
     ports:
       - 80:80
-      - 443:443 # for future ssl traffic
+      - 443:443
     depends_on:
       - db
       # - phpmyadmin

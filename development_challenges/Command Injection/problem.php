@@ -2,9 +2,9 @@
 function pingServer($host) {
     //--beginning-of-vulnerable-snippet
     exec("ping -c 4 $host", $output, $status);
+    //--end-of-vulnerable-snippet
 
     return $output;
-    //--end-of-vulnerable-snippet
 }
 
 if (isset($_POST['host'])) {

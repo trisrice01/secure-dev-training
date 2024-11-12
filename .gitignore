@@ -1,1 +1,4 @@
 **/.env
+/secure-dev-training/migrations/__pycache__/
+/secure-dev-training/migrations/versions/__pycache__/
+

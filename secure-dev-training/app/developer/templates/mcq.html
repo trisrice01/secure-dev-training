@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiple Choice Questions</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.js"></script>
+</head>
+<body style="display: grid; ">
+    <template id="choice-template">
+        <div class="question-input">
+            <input id="question-1" class="custom-checkbox" type="checkbox">
+            <label for="question-1" >This is a test</label>
+        </div>
+    </template>
+    <template id="question-template">
+        <div>
+            <p class="question-title"></p>
+            <hr class="question-divider">
+            <form action="" class="question-submit-form">
+                <div class="question-choices"></div>
+                <div class="btns">
+                    <button type="submit" class="question-submit-btn">Submit choice</button>
+                    <button type="button" class="question-next-btn hidden">Next question</button>
+                </div>
+            </form>
+            <p id="questions-count-total" class="questions-count-total">5 / 10</p>
+        </div>
+    </template>
+    <div class="developer-home__container developer-home__container--mcqs">
+        <div id="mcq-container" class="developer-home__sub-container developer-home__sub-container--mcqs">
+        </div>
+    </div>
+</body>
+<script>
+    class NoRemainingMCQs {}
+    class IncorrectMCQ {}
+    function setupPage() {}
+    async function getNextMCQ(mcqSubmission=null) {
+        let responseJson;
+        let axiosOptions = {}
+
+        if (mcqSubmission) {
+            axiosOptions = {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(mcqSubmission)
+            }
+        }
+        try {
+            const response = await fetch("/developer/mcqs/next", axiosOptions);
+            console.log(response.status);
+            responseJson = await response.json();
+        } catch (e) {
+            alert("Could not get multiple choice questions");
+            return;
+        }
+
+        return responseJson
+    }
+
+    function highlightIncorrectAndCorrect(selectedChoiceIds, correctChoiceIds, onNext) {
+        // first, highlight selected with 'red'
+        selectedChoiceIds.forEach((choiceId) => {
+            let idSelector = `#question-${choiceId}`;
+            $(idSelector).parent().css({"border": "2px solid red"});
+        })
+
+        correctChoiceIds.forEach((choiceId) => {
+            let idSelector = `#question-${choiceId}`;
+            $(idSelector).parent().css({"border": "2px solid green"});
+        })
+
+        $(".question-next-btn").removeClass("hidden").click(() => {
+            onNext();
+        });
+    }
+
+    async function submitMCQ(questionId, e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const choiceIds = []
+        $(e.target).find("input[type=\"checkbox\"], input[type=\"radio\"]").each((index, element) => {
+            const choiceId = $(element).attr("id").slice(9);
+            if ($(element).is(":checked")) {
+                choiceIds.push(parseInt(choiceId));
+            }
+        });
+        const nextMcq = await getNextMCQ({
+            question_id: questionId,
+            choice_ids: choiceIds
+        });
+        if (nextMcq.incorrect_choice && nextMcq.correct_choice) {
+            highlightIncorrectAndCorrect(choiceIds, nextMcq.correct_choice, () => {
+                $("#mcq-container").html("");
+                addMcq(nextMcq);
+            });
+            return;
+        }
+        $("#mcq-container").html("");
+        addMcq(nextMcq);
+    }
+
+    function addMcq(mcqs) {
+            let questionTemplate = document.getElementById("question-template");
+            let questionClone = questionTemplate.content.cloneNode(true).querySelector("div");
+            if (mcqs.is_finished) {
+                questionClone.innerHTML = ($("<h1>No questions left</h1>").addClass("no-questions-left").html());
+                document.querySelector(".developer-home__sub-container").append(questionClone);
+                return;
+            }
+            questionClone.querySelector(".question-title").innerText = mcqs.question;
+
+            for (const choice of mcqs.choices) {
+                let inputId = `question-${choice.id}`;
+                let template = document.getElementById("choice-template");
+                let clone = template.content.cloneNode(true).querySelector("div");
+                clone.querySelector("label").innerText = choice.choice_text;
+                clone.querySelector("label").setAttribute("for", inputId);
+                clone.querySelector("input").setAttribute("id", inputId);
+                if (!mcqs.is_multi_choice) {
+                    clone.querySelector("input").setAttribute("type", "radio");
+                    clone.querySelector("input").setAttribute("name", "question");
+                }
+                questionClone.querySelector(".question-choices").appendChild(clone);
+            }
+            document.querySelector(".developer-home__sub-container").append(questionClone);
+
+            let questionProgress = `${mcqs.total_completed_questions + 1} / ${mcqs.total_questions}`;
+
+            questionClone.querySelector(".questions-count-total").innerText = questionProgress;
+
+            questionClone.querySelector("form").addEventListener("submit", async (e) => {
+                await submitMCQ(mcqs.question_id, e)
+            })
+        }
+
+    (function() {
+        
+        async function setupPage() {
+            const mcqs = await getNextMCQ();
+            addMcq(mcqs);
+        }
+
+        setupPage();
+    })();
+</script>
+</html>

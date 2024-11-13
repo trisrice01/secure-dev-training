@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.js"></script>
+  
     <style>
         table, th, td {
             border: 1px solid black;
@@ -75,6 +78,79 @@
             {% endfor %}
         </tbody>
     </table>
+    <table>
+        <thead>
+            <tr>
+                <th>Code Challenge Name</th>
+                <th>Code Challenge Flag</th>
+                <th>Code Challenge Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for challenge in available_code_challenges %}
+                <tr>
+                    <td>{{challenge.name}}</td>
+                    <td>{{challenge.ip_addr}}</td>
+                    <td>{{challenge.description}}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+    <table>
+        <thead>
+            <tr>
+                <th>Question</th>
+                <th>Order</th>
+                <th></th>
+                <th></th>
+            </tr>   
+        </thead>
+        <tbody id="sortable">
+            {% for mcq in available_mcqs %}
+                <tr class="ui-state-default" data-mcqId="{{mcq.id}}">
+                    <td>{{mcq.question_text}}</td>
+                    <td>{{loop.index}}</td>
+                    <td>
+                        <form action="/admin/mcq/delete" method="post">
+                            <input type="hidden" value="{{mcq.id}}" name="mcq_id">
+                            <button type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <table>
+        <thead>
+            <tr>
+                <th>Module name</th>
+                <th>Module path</th>
+                <th>Module Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for module in available_modules %}
+                <tr>
+                    <td>{{ module.name }}</td>
+                    <td>{{ module.path }}</td>
+                    <td>
+                        {% if module.is_enabled %}
+                            <div>
+                                <span>Enabled&nbsp;|&nbsp;</span><a href="/admin/toggle-enable?&id={{module.id}}">Disable</a>
+                            </div>
+                        {% else %}
+                            <div>
+                                <a href="/admin/toggle-enable?&id={{module.id}}">Enable</a><span>&nbsp;|&nbsp;Disabled</span>
+                            </div>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="/admin/mcq">Add MCQ</a>
     <div>
         <h1>Login Code: <span id="current-login-code">{{login_code}}</span></h1>
         <form id="submit-new-login-code">
@@ -84,5 +160,32 @@
         </form>
     </div>
 </body>
+<script>
+$(function() {
+    $("#sortable").sortable({
+        stop: function (test) {
+            let reorderForm = {
+                reordering: []
+            }
+            $("#sortable tr").each((index, elem) => {
+                const orderIndex = index + 1;
+                const mcqId = $(elem).data("mcqid")
+                $(elem).find("td:nth-child(2)").text((orderIndex).toString())
+                reorderForm.reordering.push({
+                    mcq: mcqId,
+                    order: orderIndex
+                })
+            })
+            fetch("/admin/mcq/reorder", { 
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(reorderForm)
+            })
+        }
+    });
+})
+</script>
 <script src="/static/js/admin.js"></script>
 </html>

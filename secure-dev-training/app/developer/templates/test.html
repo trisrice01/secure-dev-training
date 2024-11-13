@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coding Challenge</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/xml/xml.min.js"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+</head>
+<body>
+
+<template id="flag-submission-template-codechallenge">
+	 <div class="developer-home__current-flags">
+		<h2 class="developer-home__flag-title">
+                	<span>Flag 1</span></h2>
+		<p class="developer-home__flag-description">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of.</p>
+            	<div class="completed-notification-container hidden">
+                	<p class="completed-notification" style="color: white;">Challenge has been completed</p>
+            	</div>
+		<div class="locked-notification-container hidden">
+                        <p class="locked-notification" style="color: red;">Challenge is locked</p>
+                </div>
+		<div class="current-notification-container hidden">
+                        <p class="current-notification" style="color: green;"><b>Current challenge</b></p>
+                </div>
+		<input type="hidden" name="flag-id">
+	</div>
+</template>
+
+<div class="developer-home__container">
+        <div class="developer-home__sub-container">
+                <h1 class="developer-home__heading">Online Code Editor</h1>
+
+		<div class="developer-home__flag-progress">
+	                <div class="pagination" id="paginated-flags" style="display: none;">
+		        </div>
+                	<p data-role="flag-progress" class="devleoper-home__flag-progress"></p>
+                	<img id="caret-left" class="caret caret--left" src="/static/img/caret.svg" alt="">
+               		<img id="caret-right" class="caret caret--right" src="/static/img/caret.svg" alt="">
+            	</div>
+
+<!--		<h2 class="developer-home__heading">Current Challenge: {{ current_challenge.name }}</h2>  -->
+
+		<div class="input-wrapper" style="display: flex; justify-content: centre; gap: 10px;">
+
+           		<div class="group">
+                		<label class="group__label" for="codeInput" style="color: white;">IDE</label>
+                		<div id="codeInput" class="form-group__input" style="height: 600px; width: 600px; border: 1px solid #ccc;"></div>
+                		<button class="submit_btn" onclick="getCode()">Run Code</button>
+            		</div>
+  			<div class="form-group">
+   				<label class="group__label" for="outputFrame" style="color: white;">Output</label>
+    				<iframe id="outputFrame" class="form-group__input" style="height: 600px; width: 150%; border: 1px solid #ccc;"></iframe>
+  			</div>
+		</div>
+		<button class="submit_btn" onclick="JSalert()">Test Alert</button>
+		<div id="progress-bar-animated" class="developer-home__flag-progress developer-home__flag-progress--animated">
+                </div>
+
+	</div>
+</div>
+
+<script>
+    const editor = CodeMirror(document.getElementById("codeInput"), {
+   	mode: "htmlmixed",
+   	theme: "dracula",
+	lineNumbers: true,
+    	tabSize: 2,
+    	indentWithTabs: true,
+    	matchBrackets: true,
+    	indentUnit: 2,
+    	lineWrapping: true,
+	value: `{{ current_challenge.vuln_code | safe }}`,
+    });
+
+    function runCode() {
+        const code = editor.getValue();  // Get code from CodeMirror editor
+        const iframe = document.getElementById("outputFrame").contentWindow.document;
+
+        // Write the code to the iframe to render it
+        iframe.open();
+        iframe.write(code);
+        iframe.close();
+    }
+
+    function JSalert(){
+	swal("Challenge completed!","You successfully fixed the code","success").then(function(){ location.reload();})
+    }
+	    
+    async function getCode() {
+	const code = editor.getValue();
+	const id = '{{ current_challenge.id | safe }}';
+
+	//const current = await submitCode(code, id);
+	const iframe = document.getElementById("outputFrame").contentWindow.document;
+
+	const current = await submitCode(code, id);
+        iframe.open();
+        iframe.write(current.message);
+        iframe.close();
+	
+	if (current.completed) {
+	    JSalert();
+	}
+
+    }
+
+    async function submitCode(code, id) {
+	let responseJSon
+	try {
+            const response = await fetch('/developer/code_editor/submit_challenge', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' },
+                body: JSON.stringify({ code, id })
+        });
+	    responseJson = await response.json();
+    	} catch {
+            return { error: true, message: defaultErrorMessage};
+	}
+	return responseJson;
+    }
+
+</script>
+<script src="/static/js/codechallenge.js" type="text/javascript"></script>
+<script src="/static/js/progress-bar.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.6.1/toastify.min.js" integrity="sha512-79j1YQOJuI8mLseq9icSQKT6bLlLtWknKwj1OpJZMdPt2pFBry3vQTt+NZuJw7NSd1pHhZlu0s12Ngqfa371EA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+</body>
+</html>

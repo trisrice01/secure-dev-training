@@ -1,1 +1,5 @@
 **/.env
+*.gitignore
+/secure-dev-training/migrations/__pycache__/
+/secure-dev-training/migrations/versions/__pycache__/
+**/env/

@@ -1,0 +1,8 @@
+FROM php:apache
+RUN docker-php-ext-install mysqli pdo pdo_mysql
+COPY upload.php upload.php
+COPY problem.php problem.php
+COPY challenge.php challenge.php
+COPY verify.php verify.php
+EXPOSE 80
+EXPOSE 443

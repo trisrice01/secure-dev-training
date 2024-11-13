@@ -1,0 +1,25 @@
+version: '3'
+services:
+  db: 
+    image: mysql:latest
+    environment:
+      - MYSQL_DATABASE=php_docker
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ALLOW_EMPTY_PASSWORD=1
+    volumes:
+      - "./db:/docker-entrypoint-initdb.d"
+  www:
+    build:
+      context: .
+      dockerfile: dockerfile
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - db
+    environment:
+      - MYSQL_DATABASE=php_docker
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    command: /bin/sh -c "chown www-data:www-data /var/www/html/problem.php && chmod +w /var/www/html/problem.php && apache2-foreground"

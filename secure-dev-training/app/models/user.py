@@ -15,6 +15,7 @@ class User(UserMixin, db.Model):
     rdp_server: so.Mapped["RDPServer"] = so.relationship(back_populates="user")
     challenge_completions: so.Mapped[list["UserChallengeCompletions"]] = so.relationship(back_populates="user")
     question_completions: so.Mapped[list["UserMCQCompletions"]] = so.relationship(back_populates="user")
+    codechallenge_completions: so.Mapped[list["UserCodeChallengeCompletions"]] = so.relationship(back_populates="user")
     # challenge_completions: so.Mapped[list["Challenge"]] = so.relationship(
     #     secondary=UserChallengeCompletions, back_populates="user_completions"
     # )

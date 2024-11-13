@@ -81,6 +81,26 @@
     <table>
         <thead>
             <tr>
+                <th>Code Challenge Name</th>
+                <th>Code Challenge Flag</th>
+                <th>Code Challenge Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for challenge in available_code_challenges %}
+                <tr>
+                    <td>{{challenge.name}}</td>
+                    <td>{{challenge.ip_addr}}</td>
+                    <td>{{challenge.description}}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+    <table>
+        <thead>
+            <tr>
                 <th>Question</th>
                 <th>Order</th>
                 <th></th>

@@ -398,3 +398,22 @@ body {
     color: white;
     padding: 100px 0;
 }
+
+.submit_btn {
+    color: var(--text-color);
+    font-size: 1em; 
+    background: var(--green); 
+    border-radius: 7px;
+    appearance: none;
+    border: none;
+    display: block;
+    margin: 20px auto 0;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease; 
+}
+
+.submit_btn:hover {
+    background-color: #86c600;
+}
+

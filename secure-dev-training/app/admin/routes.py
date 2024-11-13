@@ -6,6 +6,7 @@ from app.models.rdp_server import RDPServer
 from app.models.challenge import Challenge
 from app.models.mcq import QuestionChoice, Question
 from app.models.modules import Module
+from app.models.code_challenge import CodeChallenge
 from .utils import is_valid_ip
 from app import db
 from .forms import ChangeLoginCodeForm
@@ -46,6 +47,7 @@ def admin():
     available_challenges = Challenge.query.all()
     available_mcqs = Question.query.order_by(Question.order).all()
     available_modules = Module.query.all()
+    available_code_challenges = CodeChallenge.query.all()
     login_code = login_code_service.get_login_code()
     return render_template(
         "admin_profile.html",
@@ -54,6 +56,7 @@ def admin():
         available_challenges=available_challenges,
         available_mcqs=available_mcqs,
         available_modules=available_modules,
+        available_code_challenges=available_code_challenges,
         login_code=login_code 
     )
 

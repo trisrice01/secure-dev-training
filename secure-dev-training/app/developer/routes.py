@@ -2,12 +2,15 @@ from flask import Blueprint, request, render_template, redirect, flash, jsonify
 from flask_login import current_user, login_user, login_required
 from app.models.user import User
 from app.models.challenge import Challenge
+from app.models.modules import Module
 from app.models.rdp_server import RDPServer
 from app.models.user_challenge_completions import UserChallengeCompletions
 from app import db
+from app.models.mcq import Question, UserMCQCompletions
 import bcrypt
-from .forms import RegisterForm, LoginForm, ChallengeCompletionForm
+from .forms import RegisterForm, LoginForm, ChallengeCompletionForm, CompleteMCQForm
 from app import login_code_service
+from .decorators.modules import module_enabled, MODULE_CODE, MODULE_CTF, MODULE_THEORY
 
 
 developer_bp = Blueprint("developer", __name__, template_folder="./templates")
@@ -77,6 +80,128 @@ def dev_index():
     rdp_server = current_user.rdp_server_connection
     challenges = Challenge.query.all()
     return render_template("rdp.html", rdp_server=rdp_server, challenges=challenges, current_user=current_user)
+
+@developer_bp.route("/home")
+@login_required
+def dev_home():
+    modules = Module.query.all()
+    return render_template("developer_home.html", modules=modules)
+
+@developer_bp.route("/mcqs/next", methods=["GET", "POST"])
+@login_required
+@module_enabled(MODULE_THEORY)
+def next_mcq():
+    extraJson = {}
+    if request.method == "POST":
+        request_json = request.get_json(force=True, silent=True)
+
+        if not request_json:
+            return jsonify({
+                "error": True,
+                "message": "Invalid JSON"
+            })
+
+
+        form: ChallengeCompletionForm = CompleteMCQForm.from_json(request_json)
+
+        if not form.validate():
+            return jsonify({
+                "error": True,
+                "message": "Invalid form"
+            })
+        
+        # Check if question exists
+        question = Question.query.get(form.question_id.data)
+        
+        
+        if not question:
+            return jsonify({
+                "error": True,
+                "message": "Invalid question"
+            }), 404
+        
+        completed_challenge = UserMCQCompletions.query.filter_by(
+            user_id=current_user.id, question_id=form.question_id.data
+        ).first()
+
+        if completed_challenge:
+            return jsonify({
+                "error": True,
+                "message": "You have already completed this challenge!"
+            }), 400
+        
+        # Ensure that if more than 1 choice is submitted, the question is multi-choice
+
+        if len(form.choice_ids) > 1 and not question.is_multi_choice:
+            return jsonify({
+                "error": True,
+                "message": "This question does not have multiple answers"
+            }), 400
+        
+        is_correct = True
+        incorrect_choices = []
+        question_choice_ids = {choice.id: choice for choice in question.question_choices}
+        for choice_id in form.choice_ids.data:
+            question_choice = question_choice_ids.get(choice_id)
+            if not question_choice:
+                is_correct = False
+                continue
+                # return jsonify({
+                #     "error": True,
+                #     "message": "Invalid choice"
+                # })
+
+            if not question_choice.is_correct:
+                is_correct = False
+                # incorrect_choices.append()
+                # return jsonify({
+                #     "error": True,
+                #     "message": "Wrong choice",
+                #     "correct_choice": [choice.id for choice in question.question_choices if choice.is_correct]
+                # })
+        if not is_correct:
+            extraJson = {
+                "error": True,
+                "incorrect_choice": True,
+                "message": "Wrong choice",
+                "correct_choice": [choice.id for choice in question.question_choices if choice.is_correct]
+            }
+        
+        mcq_completion = UserMCQCompletions()
+        mcq_completion.question_id = question.id
+        mcq_completion.user_id = current_user.id
+        db.session.add(mcq_completion)
+        db.session.commit()
+
+    current_user_id = current_user.id
+    question_mcq_completions = UserMCQCompletions.query.filter_by(user_id=current_user_id).all()
+    all_questions = Question.query.order_by(Question.order).all()
+    completed_question_ids = [completion.question_id for completion in question_mcq_completions]
+    total_user_completed_questions = len(question_mcq_completions)
+    total_questions = len(all_questions)
+    for question in all_questions:
+        if question.id in completed_question_ids:
+            continue
+
+        return jsonify({
+            **question.to_response(), 
+            **extraJson,
+            "total_questions": total_questions,
+            "total_completed_questions": total_user_completed_questions
+        }), 200
+
+    return jsonify({
+        "is_finished": True, 
+        "total_questions": total_questions,
+        "total_completed_questions": total_user_completed_questions,
+        **extraJson
+    }), 200
+
+@developer_bp.route("/mcqs", methods=["GET"])
+@login_required
+@module_enabled(MODULE_THEORY)
+def list_mcqs():
+    return render_template("mcq.html")
 
 @developer_bp.route("/challenges", methods=["GET"])
 @login_required

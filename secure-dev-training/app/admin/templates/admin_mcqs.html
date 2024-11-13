@@ -7,7 +7,9 @@
     <link rel="stylesheet" href="/static/css/admin.css">
 </head>
 <body>
-
+    {% for message in get_flashed_messages() %}
+        <p style="color: red;">{{ message }}</p>
+    {% endfor %}
     <form action="" method="POST">
         <div>
             {{ form.question_text.label}}

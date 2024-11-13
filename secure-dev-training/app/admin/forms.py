@@ -33,6 +33,23 @@ class MCQChoice(FlaskForm):
     is_correct = BooleanField("Is Correct")
 
 class MCQForm(FlaskForm):
+    class Meta:
+        csrf = False
+        
     question_text = StringField("Question text", validators=[DataRequired()])
     choices = FieldList(FormField(MCQChoice), min_entries=4)
     submit = SubmitField("Submit")
+
+
+class MCQOrder(FlaskForm):
+    class Meta:
+        csrf = False
+
+    mcq = IntegerField("mcq", validators=[DataRequired()])
+    order = IntegerField("order", validators=[DataRequired()])
+
+class ReorderMCQForm(FlaskForm):
+    class Meta:
+        csrf = False
+
+    reordering = FieldList(FormField(MCQOrder), min_entries=1)

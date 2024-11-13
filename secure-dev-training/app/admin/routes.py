@@ -1,9 +1,11 @@
 from flask import Blueprint, jsonify, request, render_template, redirect, flash, get_flashed_messages
 from flask_login import current_user, login_user, login_required
-from .forms import LoginForm, AddRDPServersForm, DeleteUserForm, MCQForm
+from .forms import LoginForm, AddRDPServersForm, DeleteUserForm, MCQForm, ReorderMCQForm
 from app.models.user import User
 from app.models.rdp_server import RDPServer
 from app.models.challenge import Challenge
+from app.models.mcq import QuestionChoice, Question
+from app.models.modules import Module
 from .utils import is_valid_ip
 from app import db
 from .forms import ChangeLoginCodeForm
@@ -42,14 +44,35 @@ def admin():
     form = AddRDPServersForm()
     available_rdp_servers = RDPServer.query.all()
     available_challenges = Challenge.query.all()
+    available_mcqs = Question.query.order_by(Question.order).all()
+    available_modules = Module.query.all()
     login_code = login_code_service.get_login_code()
     return render_template(
         "admin_profile.html",
         add_rdp_form=form,
         available_rdp_servers=available_rdp_servers,
         available_challenges=available_challenges,
+        available_mcqs=available_mcqs,
+        available_modules=available_modules,
         login_code=login_code 
     )
+
+@admin_bp.route("/toggle-enable", methods=["GET"])
+@login_required
+def module_enable():
+    if not current_user or not current_user.is_admin:
+        return redirect("/admin/login")
+
+    module_id = request.args.get("id")
+
+    if not module_id:
+        return redirect("/admin")
+    
+    module = Module.query.get(module_id)
+    module.is_enabled = not module.is_enabled
+    db.session.add(module)
+    db.session.commit()
+    return redirect("/admin")
 
 @admin_bp.route("/change-login-code", methods=["POST"])
 @login_required
@@ -151,9 +174,78 @@ def mcq_management():
     
     form = MCQForm()
 
-    print(form.choices.data)
-    print(form.question_text.data)
     if form.validate_on_submit():
-        print(form)
+        print([choice.is_correct.data for choice in form.choices])
+        print(any([choice.is_correct for choice in form.choices]))
+        if not any([choice.is_correct.data for choice in form.choices]):
+            flash("At least one choice must be correct")
+            print("INVALID INVALID")
+            return render_template("admin_mcqs.html", form=form)
 
-    return render_template("admin_mcqs.html", form=form)
+        mcq_question = Question()
+        mcq_question.question_text = form.question_text.data
+        db.session.add(mcq_question)
+        db.session.commit()
+
+        for choice in form.choices:
+            mcq_choice = QuestionChoice()
+            mcq_choice.choice_text = choice.choice_text.data
+            mcq_choice.is_correct = choice.is_correct.data
+            mcq_choice.question_id = mcq_question.id
+            db.session.add(mcq_choice)
+        db.session.commit()
+        return redirect("/admin")
+
+    return render_template("admin_mcqs.html", form=form, get_flashed_messages=get_flashed_messages)
+
+@admin_bp.route("/mcq/view")
+@login_required
+def test():
+    questions = Question.query.all()
+    print(questions)
+    for question in questions:
+        for choice in question.question_choices:
+            print(choice.is_correct)
+        print(question.is_multi_choice)
+    return ""
+
+@admin_bp.route("/mcq/delete", methods=["POST"])
+@login_required
+def delete_mcq():
+    mcq_id = request.form.get("mcq_id")
+    question = Question.query.get(mcq_id)
+    print(question)
+    for choice in question.question_choices:
+        db.session.delete(choice)
+    db.session.delete(question)
+    db.session.commit()
+    return redirect("/admin")
+
+@admin_bp.route("/mcq/reorder", methods=["POST"])
+@login_required
+def reoder_mcqs():
+    request_json = request.get_json(force=True, silent=True)
+
+    if not request_json:
+        return jsonify({
+            "error": True,
+            "message": "Invalid JSON"
+        })
+
+    form: ReorderMCQForm = ReorderMCQForm.from_json(request_json)
+
+    if not form.validate_on_submit():
+        return {"success": False, "message": "Invalid form"}, 400
+    
+    for reordering in form.reordering:
+        mcq_id = reordering.mcq.data
+        order = reordering.order.data
+
+        question = Question.query.get(mcq_id)
+        question.order = order
+        db.session.add(question)
+    db.session.commit()
+        
+    return {
+        "success": True
+    }

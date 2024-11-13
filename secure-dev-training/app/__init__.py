@@ -31,6 +31,8 @@ wtforms_json.init()
 from app.models.user import User
 from app.models.rdp_server import RDPServer
 from app.models.challenge import Challenge
+from app.models.code_challenge import CodeChallenge  
+from app.models.user_codechallenge_completions import UserCodeChallengeCompletions  
 
 from .admin.routes import admin_bp
 from .developer.routes import developer_bp

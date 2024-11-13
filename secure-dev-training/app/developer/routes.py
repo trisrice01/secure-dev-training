@@ -2,11 +2,14 @@ from flask import Blueprint, request, render_template, redirect, flash, jsonify
 from flask_login import current_user, login_user, login_required
 from app.models.user import User
 from app.models.challenge import Challenge
+from app.models.code_challenge import CodeChallenge
 from app.models.rdp_server import RDPServer
 from app.models.user_challenge_completions import UserChallengeCompletions
+from app.models.user_codechallenge_completions import UserCodeChallengeCompletions
 from app import db
 import bcrypt
 from .forms import RegisterForm, LoginForm, ChallengeCompletionForm
+from .codechallenge import add_code_challenges
 from app import login_code_service
 
 
@@ -52,7 +55,9 @@ def register():
         db.session.add(user_rdp_server)
         db.session.commit()
         login_user(u)
+
         return redirect("/developer/")
+
     return render_template("register.html", form=form)
 
 @developer_bp.route("/login", methods=["GET", "POST"])
@@ -74,6 +79,7 @@ def login():
 @developer_bp.route("/")
 @login_required
 def dev_index():
+    add_code_challenges()
     rdp_server = current_user.rdp_server_connection
     challenges = Challenge.query.all()
     return render_template("rdp.html", rdp_server=rdp_server, challenges=challenges, current_user=current_user)
@@ -146,22 +152,35 @@ def complete_challenge():
 
 @developer_bp.route("/code_editor")
 @login_required
-def code_edition():
-    rdp_server = current_user.rdp_server_connection
-    challenges = Challenge.query.all()
-    return render_template("test.html", rdp_server=rdp_server, challenges=challenges, current_user=current_user)
+def code_editor():
+#    rdp_server = current_user.rdp_server_connection
+    completed_challenges = UserCodeChallengeCompletions.query.filter_by(user_id=current_user.id).all()
+    completed_challenge_ids = [completion.challenge_id for completion in completed_challenges]
+    challenges = CodeChallenge.query.all()
+
+    current_challenge = None
+    for challenge in challenges:
+        if challenge.id not in completed_challenge_ids:
+            current_challenge = challenge
+            break 
+
+    current_challenge_id = current_challenge.id if current_challenge else None
+    current_challenge_name = current_challenge.name if current_challenge else None
+
+    return render_template("test.html", current_challenge=current_challenge, challenges=challenges, current_user=current_user)
+
 
 @developer_bp.route("/code_editor/challenges", methods=["GET"])
 @login_required
 def list_codechallenges():
-    all_challenges: list[Challenge] = Challenge.query.all()
+    all_challenges: list[CodeChallenge] = CodeChallenge.query.all()
     challenges_response = {
         "total": len(all_challenges),
         "challenges": [{
             "id": challenge.id,
-            "ip": challenge.ip_addr,
             "name": challenge.name,
             "description": challenge.description,
+            "vuln_code": challenge.vuln_code,
             "is_complete": (current_user in challenge.completed_users)
         } for challenge in all_challenges]
     }
@@ -186,7 +205,7 @@ def complete_codechallenge():
             "message": "Invalid form"
         })
 
-    challenge: Challenge = Challenge.query.get(form.challenge_id.data)
+    challenge: Challenge = CodeChallenge.query.get(form.challenge_id.data)
     if not challenge:
         return jsonify({
             "error": True,
@@ -205,7 +224,7 @@ def complete_codechallenge():
             "message": "Invalid challenge flag"
         })
     
-    challenge_completion = UserChallengeCompletions()
+    challenge_completion = UserCodeChallengeCompletions()
     challenge_completion.user_id = current_user.id
     challenge_completion.challenge_id = challenge.id
 
@@ -216,3 +235,39 @@ def complete_codechallenge():
         "success": True,
         "message": "Challenge completed successfully!"
     })
+
+@developer_bp.route("/code_editor/current_challenge", methods=["GET"])
+@login_required
+def list_currentchallenges():
+    completed_challenges = UserCodeChallengeCompletions.query.filter_by(user_id=current_user.id).all()
+    completed_challenge_ids = [completion.challenge_id for completion in completed_challenges]
+    challenges = CodeChallenge.query.all()
+
+    current_challenge = None
+    for challenge in challenges:
+        if challenge.id not in completed_challenge_ids:
+            current_challenge = challenge
+            break 
+
+    current_challenge_id = current_challenge.id if current_challenge else None
+    current_challenge_name = current_challenge.name if current_challenge else None
+    challenge_response = {
+        "id": current_challenge_id,
+        "name": current_challenge_name, 
+    }
+    return jsonify(challenge_response)
+
+@developer_bp.route("/code_editor/submit_challenge", methods=["POST"])
+@login_required
+def submit_challenge():
+    data = request.get_json()
+
+    code = data.get("code")
+    challenge_id = data.get("id")
+
+    response = {
+        "status": "success",
+        "message": "Code received successfully",
+        "completed": False
+    }
+    return jsonify(response)

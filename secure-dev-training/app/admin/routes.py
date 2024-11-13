@@ -4,6 +4,7 @@ from .forms import LoginForm, AddRDPServersForm, DeleteUserForm
 from app.models.user import User
 from app.models.rdp_server import RDPServer
 from app.models.challenge import Challenge
+from app.models.code_challenge import CodeChallenge
 from .utils import is_valid_ip
 from app import db
 from .forms import ChangeLoginCodeForm
@@ -42,12 +43,14 @@ def admin():
     form = AddRDPServersForm()
     available_rdp_servers = RDPServer.query.all()
     available_challenges = Challenge.query.all()
+    available_code_challenges = CodeChallenge.query.all()
     login_code = login_code_service.get_login_code()
     return render_template(
         "admin_profile.html",
         add_rdp_form=form,
         available_rdp_servers=available_rdp_servers,
         available_challenges=available_challenges,
+	available_code_challenges=available_code_challenges,
         login_code=login_code 
     )
 
@@ -142,4 +145,6 @@ def add_rdp_servers():
                 db.session.commit()
 
     return redirect("/admin/")
-    
+
+
+

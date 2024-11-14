@@ -10,7 +10,7 @@ $conn = mysqli_connect(
 // The GetUser function is being called to retrieve a user's information.
 // It is currently vulnerable to SQL Injection.
 // A user's information must be returned inside an array from the GetUser function.
-// But you are free to add additional functions if needed
+// But you are free to add additional functions if needed.
 function GetUser($userId) {
     global $conn;
     $query = "SELECT * FROM users WHERE user_id = '$userId'";

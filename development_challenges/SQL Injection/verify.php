@@ -159,7 +159,6 @@ function VerifyQueryBadPayload() {
 
 
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
-    VerifyQueryWorks();
     $testResults = [
         [
             "name" => "SQL Injection (Timed)",

@@ -31,7 +31,16 @@ function VerifyHTMLInjection() {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
-    $testPassed = VerifySpecialCharacters() && VerifyHTMLInjection();
+    $testResults = [
+        [
+            "name" => "XSS",
+            "passed" => VerifySpecialCharacters()
+        ],
+        [
+            "name" => "HTML Injection",
+            "passed" => VerifyHTMLInjection()
+        ],
+        ];
     header('Content-Type: application/json; charset=utf-8');
-    echo json_encode(["passed" => $testPassed]);
+    echo json_encode($testResults);
 }

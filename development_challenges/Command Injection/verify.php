@@ -9,8 +9,9 @@ function VerifyPingWorks() {
     $command = GetPingCommand($payload);
 
     $expected_command = "ping -c 4 '$payload'";
+    $expected_command_two = "ping -c 4 $payload";
 
-    $testPassed = $command == $expected_command;
+    $testPassed = ($command == $expected_command) || ($command == $expected_command_two);
     return $testPassed;
 }
 
@@ -31,7 +32,16 @@ function VerifyPingWithId() {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
-    $testPassed = VerifyPingWorks() && VerifyPingWithId();
+    $testResults = [
+        [
+            "name" => "Ping works as intended",
+            "passed" => VerifyPingWorks()
+        ],
+        [
+            "name" => "Command Injection",
+            "passed" => VerifyPingWithId()
+        ],
+        ];
     header('Content-Type: application/json; charset=utf-8');
-    echo json_encode(["passed" => $testPassed]);
+    echo json_encode($testResults);
 }

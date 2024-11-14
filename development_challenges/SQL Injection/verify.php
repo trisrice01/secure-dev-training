@@ -44,10 +44,15 @@ function diff_recursive($array1, $array2) {
 
 function VerifyTimedPayload() {
     $secondsToTestFor = 5;
-    $payload = "1 UNION SELECT SLEEP($secondsToTestFor), NULL, NULL, NULL, NULL, NULL, NULL, NULL;-- ";
+    $payload = "1' UNION SELECT SLEEP($secondsToTestFor), NULL, NULL, NULL, NULL, NULL, NULL, NULL;-- ";
     $start_time = microtime(true);
 
-    GetUser($payload);
+    try {
+        $result = GetUser($payload);
+    } catch (mysqli_sql_exception $e) {
+        $testPassed = false;
+        return $testPassed;
+    }
 
     // End time
     $end_time = microtime(true);
@@ -59,8 +64,14 @@ function VerifyTimedPayload() {
 }
 
 function VerifyReturnAllResults() {
-    $payload = "1 OR 1=1";
-    $result = GetUser($payload);
+    $payload = "1' OR 1=1;-- ";
+
+    try {
+        $result = GetUser($payload);
+    } catch (mysqli_sql_exception $e) {
+        $testPassed = false;
+        return $testPassed;
+    }
 
     $conn = mysqli_connect(
         'db',
@@ -79,9 +90,14 @@ function VerifyReturnAllResults() {
 }
 
 function VerifyAccessLoginDetails() {
-    $payload = "1 UNION SELECT login_id, user_id, username, password, last_login, NULL, NULL, NULL FROM logins;-- ";
+    $payload = "1' UNION SELECT login_id, user_id, username, password, last_login, NULL, NULL, NULL FROM logins;-- ";
 
-    $result = GetUser($payload);
+    try {
+        $result = GetUser($payload);
+    } catch (mysqli_sql_exception $e) {
+        $testPassed = false;
+        return $testPassed;
+    }
 
     $conn = mysqli_connect(
         'db',
@@ -102,8 +118,70 @@ function VerifyAccessLoginDetails() {
     return $testPassed;
 }
 
+function VerifyQueryWorks() {
+    $payload = "1";
+
+    try {
+        $result = GetUser($payload);
+    } catch (mysqli_sql_exception $e) {
+        $testPassed = false;
+        return $testPassed;
+    }
+    $conn = mysqli_connect(
+        'db',
+        getenv('MYSQL_USER'),
+        getenv('MYSQL_PASSWORD'),
+        getenv('MYSQL_DATABASE')
+    );
+    $query = "SELECT * FROM users WHERE user_id = 1";
+    $statement = $conn->query($query);
+
+    $expected_result = $statement->fetch_all(MYSQLI_ASSOC);
+    
+    $difference = diff_recursive($result, $expected_result);
+    $testPassed = count($difference) == 0;
+    return $testPassed;
+
+}
+
+function VerifyQueryBadPayload() {
+    $payload = "a";
+
+    try {
+        $result = GetUser($payload);
+        $testPassed = count($result) == 0;
+        return $testPassed;
+    } catch (mysqli_sql_exception $e) {
+        $testPassed = false;
+        return $testPassed;
+    }
+}
+
+
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
-    $testPassed = VerifyTimedPayload() && VerifyReturnAllResults() && VerifyAccessLoginDetails();
+    VerifyQueryWorks();
+    $testResults = [
+        [
+            "name" => "SQL Injection (Timed)",
+            "passed" => VerifyTimedPayload()
+        ],
+        [
+            "name" => "SQL Injection (All results)",
+            "passed" => VerifyReturnAllResults()
+        ],
+        [
+            "name" => "SQL Injection (Other tables)",
+            "passed" => VerifyAccessLoginDetails()
+        ],
+        [
+            "name" => "Query working as expected",
+            "passed" => VerifyQueryWorks()
+        ],
+        [
+            "name" => "Query handles bad request",
+            "passed" => VerifyQueryBadPayload()
+        ]
+        ];
     header('Content-Type: application/json; charset=utf-8');
-    echo json_encode(["passed" => $testPassed]);
+    echo json_encode($testResults);
 }

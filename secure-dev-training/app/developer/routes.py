@@ -11,7 +11,7 @@ import bcrypt
 from .forms import RegisterForm, LoginForm, ChallengeCompletionForm
 from .codechallenge import add_code_challenges
 from app import login_code_service
-
+from app import docker_service
 
 developer_bp = Blueprint("developer", __name__, template_folder="./templates")
 
@@ -186,56 +186,6 @@ def list_codechallenges():
     }
     return jsonify(challenges_response)
 
-@developer_bp.route("/code_editor/challenge/complete", methods=["POST"])
-@login_required
-def complete_codechallenge():
-    request_json = request.get_json(force=True, silent=True)
-
-    if not request_json:
-        return jsonify({
-            "error": True,
-            "message": "Invalid JSON"
-        })
-    
-    form: ChallengeCompletionForm = ChallengeCompletionForm.from_json(request_json)
-
-    if not form.validate():
-        return jsonify({
-            "error": True,
-            "message": "Invalid form"
-        })
-
-    challenge: Challenge = CodeChallenge.query.get(form.challenge_id.data)
-    if not challenge:
-        return jsonify({
-            "error": True,
-            "message": "That challenge could not be found!"
-        })
-    
-    if current_user in challenge.completed_users:
-        return jsonify({
-            "error": True,
-            "message": "You have already completed this challenge!"
-        })
-    
-    if challenge.flag != form.challenge_flag.data:
-        return jsonify({
-            "error": True,
-            "message": "Invalid challenge flag"
-        })
-    
-    challenge_completion = UserCodeChallengeCompletions()
-    challenge_completion.user_id = current_user.id
-    challenge_completion.challenge_id = challenge.id
-
-    db.session.add(challenge_completion)
-    db.session.commit()
-
-    return jsonify({
-        "success": True,
-        "message": "Challenge completed successfully!"
-    })
-
 @developer_bp.route("/code_editor/current_challenge", methods=["GET"])
 @login_required
 def list_currentchallenges():
@@ -260,10 +210,55 @@ def list_currentchallenges():
 @developer_bp.route("/code_editor/submit_challenge", methods=["POST"])
 @login_required
 def submit_challenge():
-    data = request.get_json()
 
+    data = request.get_json()
     code = data.get("code")
     challenge_id = data.get("id")
+    container_ip = data.get("container_ip")
+    container_id = data.get("container_id")
+
+    upload = f"http://{container_ip}/upload.php"
+    verify = f"http://{container_ip}/verify.php"
+
+    upload_response = requests.post(upload, json={"code": code})
+    upload_data = upload_response.json()
+
+    tests = verify_response.get("tests", [])
+    formatted_results = []
+
+    completed = True
+    for test in tests:
+        test_name = test.get("name")
+        test_status = "passed" if test.get("passed") else "failed"
+        formatted_results.append(f"{test_name} is {test_status}")
+	if test_status == "failed":
+	    completed = False
+    message = ".\n".join(formatted_results)
+
+    if completed:
+
+	challenge_completion = UserCodeChallengeCompletions()
+        challenge_completion.user_id = current_user.id
+        challenge_completion.challenge_id = challenge.id
+        db.session.add(challenge_completion)
+        db.session.commit()
+
+	response = {
+	    "status": "success",
+	    "message": message,
+	    "completed": True
+        }
+	return jsonify(response)
+
+    else:
+        response = {
+            "status": "success",
+            "message": message,
+            "completed": False
+        }
+	return jsonify(response)
+
+
 
     response = {
         "status": "success",
@@ -271,3 +266,34 @@ def submit_challenge():
         "completed": False
     }
     return jsonify(response)
+
+@developer_bp.route("/code_editor/containers", methods=["POST"])
+@login_required
+def container_mgmt():
+    data = request.get_json(force=True, silent=True)
+    id = data.id
+    action = data.action
+    d = DockerService()
+
+    if action == "start":
+        container_info = d.run_container(id)
+        if container_info:
+            container_ip, container_id = container_info
+            return jsonify({
+                "status": "success",
+                "message": "Container has started",
+                "container_id": container_id,
+                "container_ip": container_ip
+            })
+        else:
+            return jsonify({"status": "error", "message": "Unable to start container"})
+
+    elif action == "stop":
+        d.stop_and_remove_container(id)
+        return jsonify({
+            "status": "success",
+            "message": "Container has been stopped"
+        })
+
+    else:
+        return jsonify({"status": "error", "message": f"Unsupported action '{action}'"})

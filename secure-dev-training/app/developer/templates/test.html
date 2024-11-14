@@ -11,6 +11,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/xml/xml.min.js"></script>
     <link rel="stylesheet" href="/static/css/style.css">
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+    <style>
+        #timer {
+            display: none;
+        }
+    </style>
 </head>
 <body>
 
@@ -45,7 +51,10 @@
             	</div>
 
 <!--		<h2 class="developer-home__heading">Current Challenge: {{ current_challenge.name }}</h2>  -->
-
+		    <button id="startButton" class="sumbit_btn" onclick="startChallenge()">Start Timer</button>
+    		    <div id="timer">
+        		<p id="timeDisplay">00:00</p>
+    		    </div>
 		<div class="input-wrapper" style="display: flex; justify-content: centre; gap: 10px;">
 
            		<div class="group">
@@ -78,6 +87,75 @@
 	value: `{{ current_challenge.vuln_code | safe }}`,
     });
 
+    let container = null;
+
+    let countdown = 45 * 60;
+        
+    let timerElement = document.getElementById('timer');
+
+    function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
+
+    function updateCountdown() {
+        timerElement.textContent = formatTime(countdown);
+
+        if (countdown <= 0) {
+            clearInterval(interval);
+            timerElement.textContent = 'Time\'s up!';
+        } else {
+            countdown--; // Decrease the countdown value
+        }
+    }
+
+    let interval;
+
+    async function startChallenge() {
+        const id = '{{ current_challenge.id | safe }}';
+        const action = "start";
+
+        let responseJSon
+        try {
+            const response = await fetch('/developer/code_editor/containers', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json' },
+                body: JSON.stringify({ action, id })
+        });
+            container = await response.json();
+        } catch {
+            return { error: true, message: defaultErrorMessage};
+        }
+
+	timerElement.style.display = 'block';
+        interval = setInterval(updateCountdown, 1000);
+
+        return responseJson;
+    }
+
+    async function stopChallenge() {
+        const id = '{{ current_challenge.id | safe }}';
+        const action = "stop";
+
+        let responseJSon
+        try {
+            const response = await fetch('/developer/code_editor/containers', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json' },
+                body: JSON.stringify({ action, id })
+        });
+            responseJson = await response.json();
+	    container = null;
+        } catch {
+            return { error: true, message: defaultErrorMessage};
+        }
+
+        return responseJson;
+    }
+
     function runCode() {
         const code = editor.getValue();  // Get code from CodeMirror editor
         const iframe = document.getElementById("outputFrame").contentWindow.document;
@@ -93,31 +171,36 @@
     }
 	    
     async function getCode() {
+
 	const code = editor.getValue();
 	const id = '{{ current_challenge.id | safe }}';
-
-	//const current = await submitCode(code, id);
 	const iframe = document.getElementById("outputFrame").contentWindow.document;
 
-	const current = await submitCode(code, id);
-        iframe.open();
-        iframe.write(current.message);
-        iframe.close();
+	if (container_info && !container_info.error) {
+            container_ip = container.container_ip;
+            container_id = container.container_id;
+	 
+            const current = await submitCode(code, container_ip);
+            iframe.open();
+            iframe.write(current.message);
+            iframe.close();
 	
-	if (current.completed) {
-	    JSalert();
+	    if (current.completed) {
+		const stop = await stopChallenge();
+	        JSalert();
+	    }
+	} else
 	}
-
     }
 
-    async function submitCode(code, id) {
+    async function submitCode(code, container_ip) {
 	let responseJSon
 	try {
             const response = await fetch('/developer/code_editor/submit_challenge', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json' },
-                body: JSON.stringify({ code, id })
+                body: JSON.stringify({ code, container_ip })
         });
 	    responseJson = await response.json();
     	} catch {

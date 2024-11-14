@@ -1,0 +1,10 @@
+FROM php:apache
+COPY upload.php upload.php
+COPY problem.php problem.php
+COPY verify.php verify.php
+COPY challenge.php challenge.php
+COPY themes/light.php themes/light.php
+COPY themes/dark.php themes/dark.php
+COPY themes/colourful-theme-that-no-one-knows-about.php themes/colourful-theme-that-no-one-knows-about.php
+EXPOSE 80
+EXPOSE 443
